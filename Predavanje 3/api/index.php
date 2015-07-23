@@ -25,6 +25,42 @@ $app->add(new \SlimJson\Middleware(array(
 $pdo = new PDO("sqlite:db.sqlite");
 $fpdo = new FluentPDO($pdo);
 
+
+// API za pretragu umetnika
+$app->post('/artists/search', function() use ($app, $fpdo) {
+
+    $count = $fpdo->from('artist')->where("Name LIKE '%".$_POST['keyword']."%'")->count();
+
+    if(isset($_POST['perPage']) && intval($_POST['perPage']) > 0){
+        $perPage = intval($_POST['perPage']);
+    }else{
+        $perPage = 5;
+    }
+
+    $pageCount = ceil($count/$perPage);
+
+    if(isset($_POST['page']) && intval($_POST['page']) > 0){
+        $page = intval($_POST['page']);
+        if($page > $pageCount){
+            throw new \Exception('Page '.$page.' does not exist.');
+        }
+        $artists = $fpdo->from('artist')->where("Name LIKE '%".$_POST['keyword']."%'")->limit($perPage)->offset(($page-1)*$perPage)->fetchAll();
+    }else{
+        $page = 1;
+        $artists = $fpdo->from('artist')->where("Name LIKE '%".$_POST['keyword']."%'")->limit($perPage)->fetchAll();
+    }
+
+    $meta = [
+        'pageCount'=>$pageCount,
+        'currentPage' => $page,
+        'totalCount'=>$count,
+        'next'=>($page==$pageCount?false:true),
+        'previous'=>($page==1?false:true)
+    ];
+
+    $app->render(200, ['data' => $artists,'_meta'=>$meta]);
+});
+
 // API za dohvatanje podataka o umetniku, njegovim albumima i pesmama
 $app->get('/artists/:id', function($id) use ($app, $fpdo) {
 
@@ -33,7 +69,7 @@ $app->get('/artists/:id', function($id) use ($app, $fpdo) {
 	if(empty($artist)){
 		throw new \Exception('Artist with id '.$id.' does not exist.');
 	}
-	
+
 	$artist['albums'] = $fpdo->from('album')->where('ArtistId', $id)->fetchAll();
 
 	foreach ($artist['albums'] as $i=>$album) {
@@ -47,7 +83,7 @@ $app->get('/artists/:id', function($id) use ($app, $fpdo) {
 $app->get('/artists', function() use ($app, $fpdo) {
 
 	$count = $fpdo->from('artist')->count();
-	
+
 	if(isset($_GET['perPage']) && intval($_GET['perPage']) > 0){
 		$perPage = intval($_GET['perPage']);
 	}else{
