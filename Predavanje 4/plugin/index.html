@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>jQuery plugin</title>
+	<script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="jquery.highlight.js"></script>
+
+	<style type="text/css">
+
+	.highlight,.istakni{
+		color:black;
+		padding: 2px;
+		background: yellow;
+	}
+
+	</style>
+</head>
+<body>
+
+<p>Ovo je tekst</p>
+<p>Ovo je novi tekst, crveni tekst</p>
+<p>Ovo je jos teksta, plavi tekst</p>
+
+<script type="text/javascript">
+
+	$('p').highlight({keyword:'tekst'});
+
+</script>
+</body>
+</html>
