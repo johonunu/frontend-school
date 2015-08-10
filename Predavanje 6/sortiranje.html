@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SORTIRANJE AUTOMOBILA</title>
+</head>
+<body>
+<h4>Otvorite konzolu da bi videli ispis :) </h4>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.1/backbone-min.js"></script>
+
+<script type="text/javascript">
+	
+	// napravimo model auto
+	var Auto = Backbone.Model.extend({});
+
+	// napravimo kolekciju automobili sa metodom koju cemo pozivati da izlista sadrzaj kolekcije
+	var Automobili = Backbone.Collection.extend({
+		model:Auto,
+		list: function($title){
+			console.log('----------------------------------------------------------------');
+			console.log($title);
+			console.log('----------------------------------------------------------------');
+			this.each(function(auto){
+				console.log(auto.get('marka')+ ' - '+auto.get('model') + '(' + auto.get('godiste') + ')');
+			})
+		}
+	});
+
+	// inicijalizujemo promenjivu koja ce sadrzati kolekciju automobila koju cemo sortirati
+	var automobili = new Automobili([
+		new Auto({marka:'Mazda',model:'6',godiste:2000}),
+		new Auto({marka:'Fiat',model:'Punto',godiste:2003}),
+		new Auto({marka:'Honda',model:'Civic',godiste:2015}),
+		new Auto({marka:'Mazda',model:'3',godiste:2008}),
+		new Auto({marka:'Honda',model:'Accord',godiste:2008}),
+	]);
+
+	// inicijalizujemo komparator koji ce sortirati kolekciju po godistu rastuce
+	automobili.comparator = function(auto){
+		return auto.get('godiste');
+	};
+	// moze i ovako
+	// automobili.comparator = 'godiste';
+
+	automobili.sort(); // pozivamo sort kako bi kolekciju sortirali
+	automobili.list('Sortiranje po godistu rastuce'); // stampamo kolekciju
+
+	// inicijalizujemo komparator koji ce sortirati kolekciju po godistu opadajuce
+	automobili.comparator = function(auto){
+		return - auto.get('godiste'); // obratite paznju na minus !!! znaci sortiranje u drugom smeru (opadajuce)
+	};
+
+	automobili.sort(); // pozivamo sort kako bi kolekciju sortirali
+	automobili.list('Sortiranje po godistu opadajuce') // stampamo kolekciju
+
+	// inicijalizujemo komparator koji ce sortirati kolekciju po marki i modelu rastuce
+	// prosledimo komparatoru dva argumenta, odnosno to ce biti dva objekta koja ce se uporedjivati u kolekciji, u nasem slucaju dva auta
+	automobili.comparator = function(auto1,auto2){
+		// kreiramo dva stringa koji cemo koristiti u pozivu localeCompare funkcije koja se koristi za sortiranje dva stringa
+		// ovu metodu smo pre koristili kod sortiranja niza objekata "Osoba" u zadatku sa imenikom
+		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
+		var auto1String = auto1.get('marka')+' - '+auto1.get('model'); // npr. Honda - Civic
+		var auto2String = auto2.get('marka')+' - '+auto2.get('model'); // npr. Mazda - 3
+		return auto1String.localeCompare(auto2String);
+	};
+	automobili.sort(); // pozivamo sort kako bi kolekciju sortirali
+	automobili.list('Sortiranje po marki i modelu rastuce'); // stampamo kolekciju
+
+	// inicijalizujemo komparator koji ce sortirati kolekciju po marki i modelu opadajuce
+	automobili.comparator = function(auto1,auto2){
+		var auto1String = auto1.get('marka')+' - '+auto1.get('model'); // npr. Honda - Civic
+		var auto2String = auto2.get('marka')+' - '+auto2.get('model'); // npr. Mazda - 3
+		return - auto1String.localeCompare(auto2String); // obratite paznju na minus !!! znaci sortiranje u drugom smeru (opadajuce)
+	};
+
+	automobili.sort(); // pozivamo sort kako bi kolekciju sortirali
+	automobili.list('Sortiranje po marki i modelu opadajuce'); // stampamo kolekciju
+
+
+	// takodje, sortiranje u opadajucem smeru mozemo raditi na sledeci nacin
+	// radite normalni sort, bez minusa
+	automobili.comparator = function(auto1,auto2){
+		var auto1String = auto1.get('marka')+' - '+auto1.get('model'); // npr. Honda - Civic
+		var auto2String = auto2.get('marka')+' - '+auto2.get('model'); // npr. Mazda - 3
+		return auto1String.localeCompare(auto2String);
+	};
+
+	automobili.sort(); // sortirate
+	
+	// pa rezultate okrenete naopacke sa metodom "reverse" 
+	// obratite paznju, da se "reverse" metoda poziva na atribut "models" od kolekcije(cemu se prsitupa instancama svih modela kolekcije), a ne direktno na kolekciju
+	automobili.models.reverse(); 
+	automobili.list('Sortiranje po marki i modelu opadajuce sa "reverse"');
+
+</script>
+</body>
+</html>
